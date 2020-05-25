@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".LoginActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        android:titleTextColor="@android:color/white">
+
+        <TextView
+            android:id="@+id/tooltext"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:layout_marginRight="20dp"
+            android:padding="5dp"
+            android:text="Beacon"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"/>
+
+    </androidx.appcompat.widget.Toolbar>
+    <TextView
+        android:id="@+id/scanview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Beacon Major , Minor"
+        />
+    <TextView
+        android:id="@+id/text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Student User, Lecture, Room"/>
+
+</LinearLayout>
