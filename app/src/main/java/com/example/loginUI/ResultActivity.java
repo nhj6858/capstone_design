@@ -1,8 +1,11 @@
 package com.example.loginUI;
 
+import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TextView;
@@ -14,13 +17,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-import static com.example.loginUI.NetworkManager.start_time;
-import static com.example.loginUI.NetworkManager.term;
-
 
 public class ResultActivity extends AppCompatActivity {
     NotificationManager notificationManager;
     TextView attend;
+    Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,17 +31,51 @@ public class ResultActivity extends AppCompatActivity {
 
 //        PushCheck();
 //        EndAttend();
-        try {
-            ReAttend();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        if(NetworkManager.repeatCount == 0){
-            Intent intent = new Intent(ResultActivity.this,LoginActivity.class);
-            startActivity(intent);
-            finish();
+        while(NetworkManager.repeatCount !=0){
+            try {
+                setAlarm(context);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
         }
 
+        if(NetworkManager.repeatCount == 0){
+            NetworkManager.list_x++;
+            if(NetworkManager.list_x == NetworkManager.list.size()){
+                Intent intent = new Intent(ResultActivity.this,LoginActivity.class);
+                startActivity(intent);
+                finish();
+            }
+
+
+        }
+
+    }
+
+    private void setAlarm(Context context) throws ParseException {
+        Calendar calendar = Calendar.getInstance();
+        DateFormat dateFormat = new SimpleDateFormat("HH:mm");
+        calendar.setTime(dateFormat.parse(NetworkManager.start_time));
+
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent("ALARM_ALERT");
+        PendingIntent pendingIntent = PendingIntent.getActivity(context,0,intent,0);
+
+        alarmManager.set(AlarmManager.RTC,calendar.getTimeInMillis(), pendingIntent);
+    }
+
+    public class Receiver extends BroadcastReceiver {
+        public Receiver(){ }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            try {
+                ReAttend();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+        }
     }
 
     public void PushCheck(){ // 로그인 완료후 PUSH 알림
@@ -82,4 +117,6 @@ public class ResultActivity extends AppCompatActivity {
 
         attend.setText("End Attend Success");
     }
+
 }
+

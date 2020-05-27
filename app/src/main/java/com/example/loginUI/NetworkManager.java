@@ -50,9 +50,10 @@ public class NetworkManager {
     static String beacon_uuid;
     static int term = 0;
     static int repeatCount;
+    static int list_x;
     int id;
 
-    ArrayList<String> list = new ArrayList<>();
+    static ArrayList<String> list = new ArrayList<>();
     static boolean getDataTK = false, resultTK = false;
 
     Context context;
@@ -152,6 +153,7 @@ public class NetworkManager {
                             JSONObject jsonObject = jsonArray.getJSONObject(i);
                             list.add(jsonObject.getString(String.valueOf(i+1)));
                         }
+                        list_x=0;
                     }catch (Exception e){
 
                     }

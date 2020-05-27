@@ -56,14 +56,14 @@ public class LoginActivity extends AppCompatActivity {
         checkLocationPermition();
         initListener();
 
-        if (NetworkManager.beacon_uuid == UUID) {
+        if ((NetworkManager.beacon_uuid == UUID) && (NetworkManager.list.isEmpty())) {
             try{
-                LectureCall();
-            }catch (Exception e){
-            }
-        }
+           LectureCall();
+       }catch (Exception e){
+       }
+    }
        try {
-           DataRequest();
+        DataRequest();
        }catch (Exception e){
 
        }

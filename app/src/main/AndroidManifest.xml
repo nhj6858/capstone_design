@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.loginUI">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -7,10 +8,19 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
     <uses-feature
         android:name="android.hardware.bluetooth_le"
         android:required="true" />
+
+    <receiver android:name="AlarmReceiver"
+
+        tools:ignore="WrongManifestParent">
+        <intent-filter>
+            <action android:name="com.enspert.app.alarms.ALARM_ALERT" />
+        </intent-filter>
+    </receiver>
 
     <application
         android:allowBackup="true"
@@ -19,7 +29,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ResultActivity"></activity>
+        <activity android:name=".ResultActivity">
+
+        </activity>
         <activity android:name=".LoginActivity" />
         <activity
             android:name=".MainActivity"
