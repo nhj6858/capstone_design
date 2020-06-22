@@ -6,7 +6,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -47,22 +46,24 @@ public class NetworkManager {
     static String start_time;
     static String end_time;
     static String responseTK;
-    static String beacon_uuid;
+    public static String beacon_uuid = null;
     static int term = 0;
     static int repeatCount;
     static int list_x;
     int id;
 
     static ArrayList<String> list = new ArrayList<>();
-    static boolean getDataTK = false, resultTK = false;
+    public static boolean getDataTK = false;
+    public static boolean resultTK = false;
+    public static boolean lecture_call = false;
 
-    Context context;
+
     Retrofit retrofit;
     NetworkService networkService;
     HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
     OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder();
 
-    public void LoginRequest() {// 로그인 과정
+    public void LoginRequest(final Context context) {// 로그인 과정
 
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         clientBuilder.addInterceptor(loggingInterceptor);
@@ -97,11 +98,13 @@ public class NetworkManager {
                     }
 
                     if (MainActivity.loginTK.isEmpty()) { // 자동 로그인을 위해 각각의 값 저장
-                        PreferenceManager.SaveString(context, "token", responseTK);
-                        PreferenceManager.SaveString(context, "username", requestID);
-                        PreferenceManager.SaveString(context, "password", requestPW);
-                    } else {
+                        PreferenceManager preferenceManager = new PreferenceManager();
+                        preferenceManager.SaveString(context, "token", responseTK);
+                        preferenceManager.SaveString(context, "username", requestID);
+                        preferenceManager.SaveString(context, "password", requestPW);
                     }
+                    PreferenceManager preferenceManager = new PreferenceManager();
+                    preferenceManager.SaveString(context,"uuid",beacon_uuid);
                 }
             }
 
@@ -110,11 +113,82 @@ public class NetworkManager {
                 Toast.makeText(context, "ID, PW 를 확인하세요.", Toast.LENGTH_SHORT).show();
             }
         });
+        //list_x=0;
     }
-    public void LectureCall(){
+    public boolean LectureCall(final Context context){
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         clientBuilder.addInterceptor(loggingInterceptor);
 
+
+        Interceptor interceptor = new Interceptor() {
+            @Override
+            public okhttp3.Response intercept(@NonNull Chain chain) throws IOException {
+                String token = " Token " + responseTK;
+                Request newRequest;
+                if (token != null && !token.equals("")) { // 토큰이 없는 경우
+                    // Authorization 헤더에 토큰 추가
+                    newRequest = chain.request().newBuilder().addHeader("Authorization", token).build();
+                } else newRequest = chain.request();
+                return chain.proceed(newRequest);
+            }
+        };// 토큰을 통해 해당 user 의 정보 요청
+
+        clientBuilder.interceptors().add(interceptor);
+        Log.d("okhttp",responseTK);
+
+        retrofit = new Retrofit.Builder()
+                .baseUrl(NetworkService.API_URL)
+                .client(clientBuilder.build())
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        networkService = retrofit.create(NetworkService.class);
+
+
+        Call<ResponseBody> getlecture = networkService.get_lecture();
+
+        getlecture.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if(response.isSuccessful()){
+                    try{
+                        String res = response.body().string();
+                        //JSONArray jsonArray = new JSONArray(res);
+//                        for(int i=0;i<jsonArray.length();i++){
+//                            JSONObject jsonObject = jsonArray.getJSONObject(i);
+//                            list.add(jsonObject.getString(String.valueOf(i+1)));
+//                        }
+                        JSONObject jsonObject = new JSONObject(res);
+                        for(int i=0;i<jsonObject.length();i++){
+                            list.add(jsonObject.getString(String.valueOf(i+1)));
+                        }
+                        Log.d("okhyo",list.get(0));
+                        list_x=0;
+                        lecture_call=true;
+                }catch (Exception e){
+
+                }
+
+                }
+            }
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Log.d("okhyo","lecture call save fail");
+            }
+
+        });
+
+
+        return lecture_call;
+
+    }
+
+
+    public void DataRequest(final Context context) throws JSONException {//lecture id 에 따른 lecture 정보 가져오기
+
+
+        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        clientBuilder.addInterceptor(loggingInterceptor);
 
         Interceptor interceptor = new Interceptor() {
             @Override
@@ -139,46 +213,11 @@ public class NetworkManager {
 
         networkService = retrofit.create(NetworkService.class);
 
-
-        Call<ResponseBody> getlecture = networkService.get_lecture();
-
-        getlecture.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if(response.isSuccessful()){
-                    try{
-                        String res = response.body().string();
-                        JSONArray jsonArray = new JSONArray(res);
-                        for(int i=0;i<jsonArray.length();i++){
-                            JSONObject jsonObject = jsonArray.getJSONObject(i);
-                            list.add(jsonObject.getString(String.valueOf(i+1)));
-                        }
-                        list_x=0;
-                    }catch (Exception e){
-
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-
-            }
-        });
-    }
-
-
-    public void DataRequest() throws JSONException {//lecture id 에 따른 lecture 정보 가져오기
-
-        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-        clientBuilder.addInterceptor(loggingInterceptor);
-
-
         Map<String, String> hashMap = new HashMap<>();
         hashMap.put("username", requestID);
-        hashMap.put("lecture_id", list.get(0));
+        hashMap.put("lecture_id", list.get(list_x));
 
-        final Call<ResponseBody> getData = networkService.get_data(hashMap);
+        Call<ResponseBody> getData = networkService.get_data(hashMap);
 
         getData.enqueue(new Callback<ResponseBody>() {
             @Override
@@ -193,12 +232,22 @@ public class NetworkManager {
                         beacon_major = jsonObject.getString("beacon_major");
                         beacon_minor = jsonObject.getString("beacon_minor");
                         start_time = jsonObject.getString("start_time");
+                        Log.d("okhyo","beacon major" +beacon_major);
 
-                        //getDataTK = true;
+                        PreferenceManager.SaveString(context, "room_name", room_name);
+                        PreferenceManager.SaveInteger(context, "term", term);
+                        PreferenceManager.SaveInteger(context, "repeatCount", repeatCount);
+                        PreferenceManager.SaveString(context, "beacon_major", beacon_major);
+                        PreferenceManager.SaveString(context, "beacon_minor", beacon_minor);
+                        PreferenceManager.SaveString(context, "start_time", start_time);
+
+                        getDataTK = true;
 
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
+
+
                 }
             }
 
@@ -207,13 +256,28 @@ public class NetworkManager {
 
             }
         });
+
     }
 
-    public void AttendPost() throws ParseException { // 출석 요청
+    public void AttendPost(final Context context) throws ParseException { // 출석 요청
 
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         clientBuilder.addInterceptor(loggingInterceptor);
 
+        Interceptor interceptor = new Interceptor() {
+            @Override
+            public okhttp3.Response intercept(@NonNull Chain chain) throws IOException {
+                String token = " Token " + responseTK;
+                Request newRequest;
+                if (token != null && !token.equals("")) { // 토큰이 없는 경우
+                    // Authorization 헤더에 토큰 추가
+                    newRequest = chain.request().newBuilder().addHeader("Authorization", token).build();
+                } else newRequest = chain.request();
+                return chain.proceed(newRequest);
+            }
+        };// 토큰을 통해 해당 user 의 정보 요청
+
+        clientBuilder.interceptors().add(interceptor);
 
         retrofit = new Retrofit.Builder()
                 .baseUrl(NetworkService.API_URL)
@@ -223,11 +287,15 @@ public class NetworkManager {
 
         networkService = retrofit.create(NetworkService.class);
 
-        String startATD = timeCheck();
+        String startATD = "";
+        Log.d("okhyo",startATD);
+
+        startATD = timeCheck();
 
         Map<String, String> hashMap = new HashMap<>();
-        hashMap.put("username", username);
-        hashMap.put("lecture", lecture_id);
+
+        hashMap.put("username", requestID);
+        hashMap.put("lecture", list.get(list_x));
         hashMap.put("result", startATD);
 
 
@@ -237,7 +305,20 @@ public class NetworkManager {
         S_attend.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                resultTK = true;
+                if(response.isSuccessful()){
+                    String res = null;
+                    try {
+                        res = response.body().string();
+                        JSONObject jsonObject = new JSONObject(res);
+                        String result = jsonObject.getString("result");
+
+                        PreferenceManager.SaveString(context,"result",result);
+
+                    } catch (IOException | JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                }
             }
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
@@ -245,15 +326,25 @@ public class NetworkManager {
             }
         });
 
+
         Calendar calendar = Calendar.getInstance();
         DateFormat dateFormat = new SimpleDateFormat("HH:mm");
+
 
         if(NetworkManager.repeatCount != 0){
             calendar.setTime(dateFormat.parse(start_time));
             calendar.add(Calendar.MINUTE,term);
-            NetworkManager.start_time = dateFormat.format(calendar.getTime());
+
+            start_time = dateFormat.format(calendar.getTime());
+//            repeatCount--;
+//            Log.d("okhyo","RepeatCount : " +repeatCount);
+            Log.d("okhyo","start time " + start_time);
+
+            PreferenceManager.SaveString(context,"start_time",start_time);
+
         }
 
+        resultTK = true;
 
     }
 
@@ -339,6 +430,102 @@ public class NetworkManager {
 
     }
 
+    public void logPost(String value) throws ParseException {
+        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        clientBuilder.addInterceptor(loggingInterceptor);
+
+        Interceptor interceptor = new Interceptor() {
+            @Override
+            public okhttp3.Response intercept(@NonNull Chain chain) throws IOException {
+                String token = " Token " + responseTK;
+                Request newRequest;
+                if (token != null && !token.equals("")) { // 토큰이 없는 경우
+                    // Authorization 헤더에 토큰 추가
+                    newRequest = chain.request().newBuilder().addHeader("Authorization", token).build();
+                } else newRequest = chain.request();
+                return chain.proceed(newRequest);
+            }
+        };// 토큰을 통해 해당 user 의 정보 요청
+
+        clientBuilder.interceptors().add(interceptor);
+
+        retrofit = new Retrofit.Builder()
+                .baseUrl(NetworkService.API_URL)
+                .client(clientBuilder.build())
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        networkService = retrofit.create(NetworkService.class);
+
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String today = dateFormat.format(new Date());
+
+
+        Map<String, String> hashMap = new HashMap<>();
+
+        hashMap.put("username", requestID);
+        hashMap.put("lecture", list.get(list_x));
+        hashMap.put("time", today);
+        hashMap.put("check",value);
+
+        Call<ResponseBody> logPost = networkService.log_post(hashMap);
+
+        logPost.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+            }
+        });
+
+    }
+
+    public void Getresult() throws ParseException {
+        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        clientBuilder.addInterceptor(loggingInterceptor);
+
+        Interceptor interceptor = new Interceptor() {
+            @Override
+            public okhttp3.Response intercept(@NonNull Chain chain) throws IOException {
+                String token = " Token " + responseTK;
+                Request newRequest;
+                if (token != null && !token.equals("")) { // 토큰이 없는 경우
+                    // Authorization 헤더에 토큰 추가
+                    newRequest = chain.request().newBuilder().addHeader("Authorization", token).build();
+                } else newRequest = chain.request();
+                return chain.proceed(newRequest);
+            }
+        };// 토큰을 통해 해당 user 의 정보 요청
+
+        clientBuilder.interceptors().add(interceptor);
+
+        retrofit = new Retrofit.Builder()
+                .baseUrl(NetworkService.API_URL)
+                .client(clientBuilder.build())
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        networkService = retrofit.create(NetworkService.class);
+
+        Call<ResponseBody> getResult = networkService.get_result();
+
+        getResult.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+            }
+        });
+    }
+
     public String timeCheck() throws ParseException {
 
         StringBuilder Check = new StringBuilder("{\"" + start_time);
@@ -358,7 +545,7 @@ public class NetworkManager {
                 Check.append("\":\"ATTEND\"}");
 
 
-            } else if (min > 5 && min <= 55) {
+            } else if (min > 5 && min <= 10) {
                 Check.append("\":\"LATE\"}");
 
             } else {
