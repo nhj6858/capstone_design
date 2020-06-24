@@ -8,19 +8,11 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <uses-feature
         android:name="android.hardware.bluetooth_le"
         android:required="true" />
-
-    <receiver android:name="AlarmReceiver"
-
-        tools:ignore="WrongManifestParent">
-        <intent-filter>
-            <action android:name="com.enspert.app.alarms.ALARM_ALERT" />
-        </intent-filter>
-    </receiver>
 
     <application
         android:allowBackup="true"
@@ -29,10 +21,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ResultActivity">
-
-        </activity>
-        <activity android:name=".LoginActivity" />
+        <activity android:name=".ResultActivity"></activity>
+        <activity android:name=".AttendActivity" />
+        <activity android:name=".RepeatActivity" />
+        <activity android:name=".ScanActivity" />
         <activity
             android:name=".MainActivity"
             android:windowSoftInputMode="stateAlwaysHidden">
@@ -48,6 +40,13 @@
         <receiver android:name="com.minew.beacon.BluetoothChangedReceiver">
             <intent-filter>
                 <action android:name="android.bluetooth.adapter.action.STATE_CHANGED" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".TimeReceiver"
+            tools:ignore="WrongManifestParent">
+            <intent-filter>
+                <action android:name="com.enspert.app.alarms.ALARM_ALERT" />
             </intent-filter>
         </receiver>
     </application>

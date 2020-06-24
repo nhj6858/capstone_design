@@ -4,14 +4,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ResultActivity">
+    android:orientation="vertical"
+    tools:context=".RepeatActivity">
+
+
     <TextView
         android:id="@+id/attend"
         android:layout_gravity="center_vertical"
         android:gravity="center_horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="attend success"
-        android:textSize="50dp"/>
+        android:text="Repeat Count : "
+        android:textSize="30dp"/>
+    <Button
+        android:id="@+id/ReAttendBtn"
+        android:text="ReAttend"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 
 </LinearLayout>

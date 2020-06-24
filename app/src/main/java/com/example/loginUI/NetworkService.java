@@ -27,9 +27,10 @@ public interface NetworkService {
     Call<ResponseBody>get_lecture();
 
 
-    //token 을 header 에 넣고 user 정보 요청
+    //token 을 header 에 넣고 과목코드의 정보 요청
+    @FormUrlEncoded
     @POST("lecture/")
-    Call<ResponseBody>get_data(@FieldMap Map<String,String> options);
+    Call<ResponseBody>get_data(@FieldMap Map<String, String> options);
 
     //출석여부 확인 후 출석 요청
     @FormUrlEncoded
@@ -42,6 +43,14 @@ public interface NetworkService {
     @POST("attend/")
     Call<ResponseBody>end_atted(@FieldMap Map<String,String> options);
     //@Path("id") int id,
+
+    @FormUrlEncoded
+    @POST("log/")
+    Call<ResponseBody>log_post(@FieldMap Map<String,String> options);
+
+    @FormUrlEncoded
+    @POST("final_result/")
+    Call<ResponseBody>get_result(@FieldMap Map<String,String>options);
 
 //    @GET("restmain/{pk}/")
 //    Call<ResponseBody>get_Testpk(@Path("pk") int pk, @Query("format=") String json);

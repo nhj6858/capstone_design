@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".LoginActivity">
+    tools:context=".ScanActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -14,6 +14,11 @@
         android:background="@color/colorPrimary"
         android:titleTextColor="@android:color/white">
 
+        <Button
+            android:id="@+id/resultGo"
+            android:text="Result"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
         <TextView
             android:id="@+id/tooltext"
             android:layout_width="match_parent"
@@ -21,21 +26,46 @@
             android:gravity="right"
             android:layout_marginRight="20dp"
             android:padding="5dp"
-            android:text="Beacon"
+            android:text="Beacon Scan"
             android:textColor="@android:color/white"
             android:textSize="18sp"/>
 
     </androidx.appcompat.widget.Toolbar>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyeler"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
     <TextView
         android:id="@+id/scanview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Beacon Major , Minor"
         />
+
+    <Button
+        android:id="@+id/postbtn"
+        android:text="ATTEND"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
     <TextView
-        android:id="@+id/text"
+        android:id="@+id/UserTxt"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Student User, Lecture, Room"/>
+        android:hint="Student User"
+        android:textSize="25dp"/>
+    <TextView
+        android:id="@+id/LectureTxt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Lecture"
+        android:textSize="25dp"/>
+    <TextView
+        android:id="@+id/TimeTxt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Time"
+        android:textSize="25dp"/>
+
 
 </LinearLayout>

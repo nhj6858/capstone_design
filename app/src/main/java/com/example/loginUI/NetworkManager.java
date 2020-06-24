@@ -2,7 +2,6 @@ package com.example.loginUI;
 
 import android.content.Context;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -31,7 +30,6 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.example.loginUI.MainActivity.requestID;
-import static com.example.loginUI.MainActivity.requestPW;
 
 
 public class NetworkManager {
@@ -55,6 +53,7 @@ public class NetworkManager {
     static ArrayList<String> list = new ArrayList<>();
     public static boolean getDataTK = false;
     public static boolean resultTK = false;
+    public static boolean attendTK = false;
     public static boolean lecture_call = false;
 
 
@@ -63,8 +62,7 @@ public class NetworkManager {
     HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
     OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder();
 
-    public void LoginRequest(final Context context) {// 로그인 과정
-
+    public void Retrofit(){
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         clientBuilder.addInterceptor(loggingInterceptor);
 
@@ -75,45 +73,21 @@ public class NetworkManager {
                 .build();
 
         networkService = retrofit.create(NetworkService.class);
+    }
+
+    public Call<ResponseBody> LoginRequest(String id,String pw) {// 로그인 과정
+
+        Retrofit();
+
 
         Map<String, String> hashMap = new HashMap<>();
-        hashMap.put("username", requestID);
-        hashMap.put("password", requestPW);
+        hashMap.put("username", id);
+        hashMap.put("password", pw);
 
         Call<ResponseBody> login = networkService.post_login(hashMap); // id pw 넣고 로그인 요청
 
-        login.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if (response.isSuccessful()) {
-                    try {
-                        String res = response.body().string();
-                        JSONObject jsonObject = new JSONObject(res);
-                        responseTK = jsonObject.getString("token");//callback 된 token 저장
-                        beacon_uuid = jsonObject.getString("uuid");
+        return login;
 
-
-                    } catch (JSONException | IOException e) {
-                        e.printStackTrace();
-                    }
-
-                    if (MainActivity.loginTK.isEmpty()) { // 자동 로그인을 위해 각각의 값 저장
-                        PreferenceManager preferenceManager = new PreferenceManager();
-                        preferenceManager.SaveString(context, "token", responseTK);
-                        preferenceManager.SaveString(context, "username", requestID);
-                        preferenceManager.SaveString(context, "password", requestPW);
-                    }
-                    PreferenceManager preferenceManager = new PreferenceManager();
-                    preferenceManager.SaveString(context,"uuid",beacon_uuid);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(context, "ID, PW 를 확인하세요.", Toast.LENGTH_SHORT).show();
-            }
-        });
-        //list_x=0;
     }
     public boolean LectureCall(final Context context){
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
@@ -290,13 +264,16 @@ public class NetworkManager {
         String startATD = "";
         Log.d("okhyo",startATD);
 
-        startATD = timeCheck();
+        startATD = timeCheck(context);
 
+        int end =PreferenceManager.GetInteger(context,"repeatCount");
+        Log.d("okhyo : " , "end : " +Integer.toString(end));
         Map<String, String> hashMap = new HashMap<>();
 
         hashMap.put("username", requestID);
         hashMap.put("lecture", list.get(list_x));
         hashMap.put("result", startATD);
+        if(end ==1) {hashMap.put("end","end");}
 
 
         Call<ResponseBody> S_attend = networkService.post_attend(hashMap);
@@ -305,20 +282,7 @@ public class NetworkManager {
         S_attend.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if(response.isSuccessful()){
-                    String res = null;
-                    try {
-                        res = response.body().string();
-                        JSONObject jsonObject = new JSONObject(res);
-                        String result = jsonObject.getString("result");
 
-                        PreferenceManager.SaveString(context,"result",result);
-
-                    } catch (IOException | JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                }
             }
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
@@ -338,7 +302,7 @@ public class NetworkManager {
             start_time = dateFormat.format(calendar.getTime());
 //            repeatCount--;
 //            Log.d("okhyo","RepeatCount : " +repeatCount);
-            Log.d("okhyo","start time " + start_time);
+            Log.d("okhyo","attend 이후 start time " + start_time);
 
             PreferenceManager.SaveString(context,"start_time",start_time);
 
@@ -348,87 +312,7 @@ public class NetworkManager {
 
     }
 
-    public void ReAttend(){
 
-    }
-
-    public void EndAttend() {
-
-        String endATD = null;
-
-        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-        clientBuilder.addInterceptor(loggingInterceptor);
-
-
-        Interceptor interceptor = new Interceptor() {
-            @Override
-            public okhttp3.Response intercept(@NonNull Chain chain) throws IOException {
-                String token = " Token " + responseTK;
-                Log.d("hyo token", token);
-                Request newRequest;
-                if (token != null && !token.equals("")) { // 토큰이 없는 경우
-                    // Authorization 헤더에 토큰 추가
-                    newRequest = chain.request().newBuilder().addHeader("Authorization", token).build();
-                } else newRequest = chain.request();
-                return chain.proceed(newRequest);
-            }
-        };// 토큰을 통해 해당 user 의 정보 요청
-
-        clientBuilder.interceptors().add(interceptor);
-
-        retrofit = new Retrofit.Builder()
-                .baseUrl(NetworkService.API_URL)
-                .client(clientBuilder.build())
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        networkService = retrofit.create(NetworkService.class);
-
-        DateFormat dateFormat = new SimpleDateFormat("HH:mm");
-        String today = dateFormat.format(new Date());
-
-        Map<String, String> hashMap = new HashMap<>();
-
-        hashMap.put("username", username);
-        hashMap.put("lecture", lecture_id);
-
-        try {
-            Date dateNow = dateFormat.parse(today);
-            Date dateCreated = dateFormat.parse(end_time);
-            long duration = dateNow.getTime() - dateCreated.getTime();
-            long min = duration / 60000;
-
-            if (min <= 20 && min > 0) {
-                endATD = "{\"" + end_time + "\":\"ATTEND\"}";
-                Log.d("hyo", endATD);
-            } else {
-                endATD = "{\"" + end_time + "\":\"ABSENT\"}";
-            }
-
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        hashMap.put("result", endATD);
-
-        Call<ResponseBody> E_attend = networkService.end_atted(hashMap);
-
-        E_attend.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if (response.isSuccessful()) {
-                    Log.d("hyo", "End Result Success");
-
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-
-            }
-        });
-
-    }
 
     public void logPost(String value) throws ParseException {
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
@@ -484,7 +368,7 @@ public class NetworkManager {
 
     }
 
-    public void Getresult() throws ParseException {
+    public Call<ResponseBody> Getresult(final Context context) throws ParseException {
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         clientBuilder.addInterceptor(loggingInterceptor);
 
@@ -511,23 +395,19 @@ public class NetworkManager {
 
         networkService = retrofit.create(NetworkService.class);
 
-        Call<ResponseBody> getResult = networkService.get_result();
+        Map<String, String> hashMap = new HashMap<>();
 
-        getResult.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+        hashMap.put("username", requestID);
+        hashMap.put("lecture", list.get(list_x-1));
 
-            }
+        Call<ResponseBody> getResult = networkService.get_result(hashMap);
 
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-
-            }
-        });
+        return getResult;
     }
 
-    public String timeCheck() throws ParseException {
+    public String timeCheck(Context context) throws ParseException {
 
+        start_time=PreferenceManager.GetString(context,"start_time");
         StringBuilder Check = new StringBuilder("{\"" + start_time);
 
         DateFormat dateFormat = new SimpleDateFormat("HH:mm");
@@ -545,10 +425,7 @@ public class NetworkManager {
                 Check.append("\":\"ATTEND\"}");
 
 
-            } else if (min > 5 && min <= 10) {
-                Check.append("\":\"LATE\"}");
-
-            } else {
+            }  else {
                 Check.append("\":\"ABSENT\"}");
 
             }
