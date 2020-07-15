@@ -5,8 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:gravity="center_vertical"
     tools:context=".RepeatActivity">
-
 
     <TextView
         android:id="@+id/attend"
@@ -15,11 +15,29 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Repeat Count : "
-        android:textSize="30dp"/>
+        android:textSize="30dp"
+        android:visibility="gone"/>
     <Button
         android:id="@+id/ReAttendBtn"
         android:text="ReAttend"
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"/>
+
+
+
+    <ImageView
+        android:layout_gravity="center_horizontal"
+        android:src="@drawable/Loading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+    <TextView
+        android:layout_gravity="center_horizontal"
+        android:text="출석 진행중.."
+        android:textColor="#0000FF"
+        android:textSize="25dp"
+        android:fontFamily="sans-serif-black"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
 </LinearLayout>

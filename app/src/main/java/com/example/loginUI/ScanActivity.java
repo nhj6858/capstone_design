@@ -61,7 +61,7 @@ public class ScanActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_scan);
 
         initView();
         initManager();
@@ -141,13 +141,16 @@ public class ScanActivity extends AppCompatActivity {
         resultGo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!(NetworkManager.list.isEmpty())){
-                    Intent intent = new Intent(ScanActivity.this,ResultActivity.class);
-                    startActivity(intent);
-                    finish();
-                }else{
-                    Toast.makeText(getApplicationContext(),"결과를 불러올 출석이 존재하지 않음",Toast.LENGTH_SHORT);
-                }
+                Intent intent = new Intent(ScanActivity.this,ResultActivity.class);
+                startActivity(intent);
+                finish();
+//                if(!(NetworkManager.list.isEmpty())){
+//                    Intent intent = new Intent(ScanActivity.this,ResultActivity.class);
+//                    startActivity(intent);
+//                    finish();
+//                }else{
+//                    Toast.makeText(getApplicationContext(),"결과를 불러올 출석이 존재하지 않음",Toast.LENGTH_SHORT);
+//                }
 
             }
         });
@@ -404,41 +407,67 @@ public class ScanActivity extends AppCompatActivity {
 
 
         UserTxt.setText("학번 : " + username);
-        LectureTxt.setText("현재 강의명 : " + room_name);
+        LectureTxt.setText("강의명 : " + room_name);
         TimeTxt.setText("강의 시작 시간 : " + start_time);
 
         TimeCheck();
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(compare<1){
-                    Toast.makeText(getApplicationContext(),"출석 시간이 되지 않음",Toast.LENGTH_LONG).show();
-                }else{
-                    if (Major.equals(beacon_major) && Minor.equals(beacon_minor)) {
-                        //비콘 스캔 값과 가져온 비콘 값을 비교후 일치시 전송
-                        if (repeatCount != 0) {
-                            try {
-                                networkManager.AttendPost(getApplicationContext());
+        if(compare<1){ // 비콘스캔 스레드로 인해 초단위로 현재 시간과 비교한다.
+            Toast.makeText(getApplicationContext(),"출석 시간이 되지 않음",Toast.LENGTH_LONG).show();
+        }else{
+            if (Major.equals(beacon_major) && Minor.equals(beacon_minor)) {
+                //비콘 스캔 값과 가져온 비콘 값을 비교후 일치시 전송
+                if (repeatCount != 0) {
+                    try {
+                        networkManager.AttendPost(getApplicationContext());
 
-                            } catch (ParseException e) {
-                                e.printStackTrace();
-                            }
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
 
 
-                            if (NetworkManager.resultTK) {
-                                NetworkManager.getDataTK=false;
-                                btn.setText("ATTEND");
-                                Intent intent = new Intent(ScanActivity.this, RepeatActivity.class);
-                                startActivity(intent);
-                                finish();
-                            }
-                        }
-
+                    if (NetworkManager.resultTK) {
+                        NetworkManager.getDataTK=false;
+                        btn.setText("ATTEND");
+                        Intent intent = new Intent(ScanActivity.this, RepeatActivity.class);
+                        startActivity(intent);
+                        finish();
                     }
                 }
 
             }
-        });
+        }
+
+//        btn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if(compare<1){
+//                    Toast.makeText(getApplicationContext(),"출석 시간이 되지 않음",Toast.LENGTH_LONG).show();
+//                }else{
+//                    if (Major.equals(beacon_major) && Minor.equals(beacon_minor)) {
+//                        //비콘 스캔 값과 가져온 비콘 값을 비교후 일치시 전송
+//                        if (repeatCount != 0) {
+//                            try {
+//                                networkManager.AttendPost(getApplicationContext());
+//
+//                            } catch (ParseException e) {
+//                                e.printStackTrace();
+//                            }
+//
+//
+//                            if (NetworkManager.resultTK) {
+//                                NetworkManager.getDataTK=false;
+//                                btn.setText("ATTEND");
+//                                Intent intent = new Intent(ScanActivity.this, RepeatActivity.class);
+//                                startActivity(intent);
+//                                finish();
+//                            }
+//                        }
+//
+//                    }
+//                }
+//
+//            }
+//        });
 
     }
     public void TimeCheck(){

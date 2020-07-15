@@ -21,7 +21,33 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ResultActivity"></activity>
+        <receiver
+            android:name=".BootReceiver"
+            android:enabled="true"
+            android:exported="false"
+            android:label="BOOTReceiver">
+
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name=".BackgroundService"
+            android:enabled="true"
+            android:stopWithTask="false"></service>
+        <receiver
+            android:name=".RestarterBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:label="RestartServiceWhenStopped">
+            <intent-filter>
+                <action android:name="com.bluexmas.common.RestartService" />
+            </intent-filter>
+        </receiver>
+
+
+        <activity android:name=".ResultActivity" />
         <activity android:name=".AttendActivity" />
         <activity android:name=".RepeatActivity" />
         <activity android:name=".ScanActivity" />
@@ -40,13 +66,6 @@
         <receiver android:name="com.minew.beacon.BluetoothChangedReceiver">
             <intent-filter>
                 <action android:name="android.bluetooth.adapter.action.STATE_CHANGED" />
-            </intent-filter>
-        </receiver>
-        <receiver
-            android:name=".TimeReceiver"
-            tools:ignore="WrongManifestParent">
-            <intent-filter>
-                <action android:name="com.enspert.app.alarms.ALARM_ALERT" />
             </intent-filter>
         </receiver>
     </application>

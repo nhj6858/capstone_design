@@ -36,11 +36,21 @@ public class MainActivity extends AppCompatActivity {
     static String loginTK; // 자동로그인 여부 확인
     Button btn;
     InputMethodManager imm;
+    private Intent mBackgroundServiceIntent;
+    private BackgroundService mBackgroundService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mBackgroundService = new BackgroundService(getApplicationContext());
+        mBackgroundServiceIntent = new Intent(getApplicationContext(), mBackgroundService.getClass());
+        // 서비스가 실행 중인지 확인
+        if (!BootReceiver.isServiceRunning(this, mBackgroundService.getClass())) {
+            // 서비스가 실행하고 있지 않는 경우 서비스 실행
+            startService(mBackgroundServiceIntent);
+        }
 
 
         loginid = findViewById(R.id.loginid);
@@ -67,7 +77,11 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) { // 로그인 버튼 클릭시 로그인
                 requestID = loginid.getText().toString();
                 requestPW = loginpw.getText().toString();
-                LoginRequest();
+//                LoginRequest();
+                Intent intent = new Intent(MainActivity.this, ScanActivity.class);
+                //intent.putExtra("beacon_uuid",beacon_uuid);
+                startActivity(intent);
+                finish();
             }
         });
 

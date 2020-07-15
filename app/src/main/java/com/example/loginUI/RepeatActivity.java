@@ -45,68 +45,120 @@ public class RepeatActivity extends AppCompatActivity {
 //        PushCheck();
 //        EndAttend();
 
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if(repeatCount>0) {//재출석 횟수가 0보다 클때
-                    if (compare >= 0) {//출석시간이 이미 지났을 경우 재출석
-                        try {
-                            Toast.makeText(getApplicationContext(),"재 출석 요청 보냄",Toast.LENGTH_SHORT).show();
-                            networkManager.AttendPost(getApplicationContext());//출석요청
-                            repeatCount--;//재요청 횟수 차감
-                            PreferenceManager.SaveInteger(getApplicationContext(), "repeatCount", repeatCount);//횟수 저장
+        if(repeatCount>0) {//재출석 횟수가 0보다 클때
+            if (compare >= 0) {//출석시간이 이미 지났을 경우 재출석
+                try {
+                    Toast.makeText(getApplicationContext(),"재 출석 요청 보냄",Toast.LENGTH_SHORT).show();
+                    networkManager.AttendPost(getApplicationContext());//출석요청
+                    repeatCount--;//재요청 횟수 차감
+                    PreferenceManager.SaveInteger(getApplicationContext(), "repeatCount", repeatCount);//횟수 저장
 
 
-                            Intent intent = new Intent(RepeatActivity.this, RepeatActivity.class);
-                            startActivity(intent);
-                            finish();// 지각을 위해 한번 출석 후 다음시간의 출석까지 찍기위한 현재 액티비티 재시작
+                    Intent intent = new Intent(RepeatActivity.this, RepeatActivity.class);
+                    startActivity(intent);
+                    finish();// 지각을 위해 한번 출석 후 다음시간의 출석까지 찍기위한 현재 액티비티 재시작
 
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-
-                    } else {//출석 시간 이전일 경우 Attend Activity 로 돌아가서 service 자동 출석 대기
-
-                        repeatCount--;//재요청 횟수 차감
-                        PreferenceManager.SaveInteger(getApplicationContext(), "repeatCount", repeatCount);//횟수 저장
-
-                        Toast.makeText(getApplicationContext(),"재 출석 요청을 보내지 않음",Toast.LENGTH_SHORT).show();
-
-
-                        String Major = PreferenceManager.GetString(getApplicationContext(), "Major");
-                        String Minor = PreferenceManager.GetString(getApplicationContext(), "Minor");
-                        String UUID = PreferenceManager.GetString(getApplicationContext(), "UUID");
-
-                        Intent intent = new Intent(RepeatActivity.this, ScanActivity.class);
-                        intent.putExtra("Major", Major);
-                        intent.putExtra("Minor", Minor);
-                        intent.putExtra("UUID", UUID);
-                        startActivity(intent);
-                        finish();
-                    }
-                }else {
-                    NetworkManager.list_x++;
-                    if(NetworkManager.list_x < NetworkManager.list.size()){
-                        Intent intent = new Intent(RepeatActivity.this, ScanActivity.class);
-                        startActivity(intent);
-                        finish();
-                    }else if(NetworkManager.list_x >= NetworkManager.list.size()) {
-                        NetworkManager.list_x=0;
-                        Toast.makeText(getApplicationContext(),"오늘의 강의가 전부 끝났음",Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(RepeatActivity.this,ScanActivity.class);
-                        startActivity(intent);
-                        finish();
-
-                    }
+                } catch (ParseException e) {
+                    e.printStackTrace();
                 }
 
+            } else {//출석 시간 이전일 경우 Attend Activity 로 돌아가서 service 자동 출석 대기
+
+                repeatCount--;//재요청 횟수 차감
+                PreferenceManager.SaveInteger(getApplicationContext(), "repeatCount", repeatCount);//횟수 저장
+
+                Toast.makeText(getApplicationContext(),"재 출석 요청을 보내지 않음",Toast.LENGTH_SHORT).show();
+
+
+                String Major = PreferenceManager.GetString(getApplicationContext(), "Major");
+                String Minor = PreferenceManager.GetString(getApplicationContext(), "Minor");
+                String UUID = PreferenceManager.GetString(getApplicationContext(), "UUID");
+
+                Intent intent = new Intent(RepeatActivity.this, ScanActivity.class);
+                intent.putExtra("Major", Major);
+                intent.putExtra("Minor", Minor);
+                intent.putExtra("UUID", UUID);
+                startActivity(intent);
+                finish();
+            }
+        }else {
+            NetworkManager.list_x++;
+            if(NetworkManager.list_x < NetworkManager.list.size()){
+                Intent intent = new Intent(RepeatActivity.this, ScanActivity.class);
+                startActivity(intent);
+                finish();
+            }else if(NetworkManager.list_x >= NetworkManager.list.size()) {
+                NetworkManager.list_x=0;
+                Toast.makeText(getApplicationContext(),"오늘의 강의가 전부 끝났음",Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(RepeatActivity.this,ScanActivity.class);
+                startActivity(intent);
+                finish();
 
             }
+        }
 
-
-
-        });
+//        btn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//                if(repeatCount>0) {//재출석 횟수가 0보다 클때
+//                    if (compare >= 0) {//출석시간이 이미 지났을 경우 재출석
+//                        try {
+//                            Toast.makeText(getApplicationContext(),"재 출석 요청 보냄",Toast.LENGTH_SHORT).show();
+//                            networkManager.AttendPost(getApplicationContext());//출석요청
+//                            repeatCount--;//재요청 횟수 차감
+//                            PreferenceManager.SaveInteger(getApplicationContext(), "repeatCount", repeatCount);//횟수 저장
+//
+//
+//                            Intent intent = new Intent(RepeatActivity.this, RepeatActivity.class);
+//                            startActivity(intent);
+//                            finish();// 지각을 위해 한번 출석 후 다음시간의 출석까지 찍기위한 현재 액티비티 재시작
+//
+//                        } catch (ParseException e) {
+//                            e.printStackTrace();
+//                        }
+//
+//                    } else {//출석 시간 이전일 경우 Attend Activity 로 돌아가서 service 자동 출석 대기
+//
+//                        repeatCount--;//재요청 횟수 차감
+//                        PreferenceManager.SaveInteger(getApplicationContext(), "repeatCount", repeatCount);//횟수 저장
+//
+//                        Toast.makeText(getApplicationContext(),"재 출석 요청을 보내지 않음",Toast.LENGTH_SHORT).show();
+//
+//
+//                        String Major = PreferenceManager.GetString(getApplicationContext(), "Major");
+//                        String Minor = PreferenceManager.GetString(getApplicationContext(), "Minor");
+//                        String UUID = PreferenceManager.GetString(getApplicationContext(), "UUID");
+//
+//                        Intent intent = new Intent(RepeatActivity.this, ScanActivity.class);
+//                        intent.putExtra("Major", Major);
+//                        intent.putExtra("Minor", Minor);
+//                        intent.putExtra("UUID", UUID);
+//                        startActivity(intent);
+//                        finish();
+//                    }
+//                }else {
+//                    NetworkManager.list_x++;
+//                    if(NetworkManager.list_x < NetworkManager.list.size()){
+//                        Intent intent = new Intent(RepeatActivity.this, ScanActivity.class);
+//                        startActivity(intent);
+//                        finish();
+//                    }else if(NetworkManager.list_x >= NetworkManager.list.size()) {
+//                        NetworkManager.list_x=0;
+//                        Toast.makeText(getApplicationContext(),"오늘의 강의가 전부 끝났음",Toast.LENGTH_SHORT).show();
+//                        Intent intent = new Intent(RepeatActivity.this,ScanActivity.class);
+//                        startActivity(intent);
+//                        finish();
+//
+//                    }
+//                }
+//
+//
+//            }
+//
+//
+//
+//        });
 
     }
     public void TimeCheck(){

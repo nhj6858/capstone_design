@@ -5,22 +5,27 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_gravity="center_horizontal"
-    android:gravity="center_vertical"
     android:paddingLeft="@android:dimen/app_icon_size"
     android:paddingRight="@android:dimen/app_icon_size"
-
     android:orientation="vertical"
     android:focusable="true"
+    android:paddingTop="100dp"
     android:focusableInTouchMode="true"
     android:onClick="linearOnClick"
+    android:background="@color/colorwhite"
     tools:context=".MainActivity"
     >
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/logo"/>
     <LinearLayout
+        android:layout_marginTop="50dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginTop="@android:dimen/app_icon_size"
+
+        android:paddingLeft="8dp"
         >
         <LinearLayout
             android:layout_width="match_parent"
@@ -33,7 +38,8 @@
                 android:layout_height="wrap_content"
                 android:text="ID  : "
                 android:textSize="30dp"
-                android:textStyle="bold"/>
+                android:textColor="#000000"
+                android:textStyle="bold" />
 
             <EditText
                 android:id="@+id/loginid"
@@ -54,6 +60,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="PW : "
+                android:textColor="#000000"
                 android:textSize="25dp"
                 android:textStyle="bold"/>
 
@@ -72,13 +79,18 @@
 
     </LinearLayout>
     <LinearLayout
+        android:layout_marginTop="10dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        >
         <Button
             android:id="@+id/button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/loginborder"
             android:text="로그인"
+            android:textSize="25dp"
+            android:textColor="@color/colorwhite"
              />
 
 

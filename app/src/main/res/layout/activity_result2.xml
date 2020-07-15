@@ -4,12 +4,54 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ResultActivity">
-
-    <TextView
-        android:id="@+id/ResultTxt"
+    tools:context=".ResultActivity"
+    android:orientation="vertical">
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/resultToolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="과목명 : [출석 결과 :               ]"
-        android:textSize="30dp"/>
+        android:background="@color/colorPrimaryDark"
+        android:titleTextColor="@android:color/white"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="출석 결과 확인"
+            android:textColor="@android:color/white"
+            android:textSize="25dp"/>
+    </androidx.appcompat.widget.Toolbar>
+
+    <LinearLayout
+        android:layout_marginTop="150dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="center">
+
+        <TextView
+            android:id="@+id/ResultLecTxt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-black"
+            android:hint="강의명 : 캡스톤 디자인 "
+            android:textColor="@android:color/black"
+            android:textSize="25dp"
+            android:layout_marginBottom="15dp"/>
+
+
+
+        <TextView
+            android:id="@+id/ResultAtdTxt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint= "출석 결과 : O "
+            android:textSize="25dp"
+            android:textColor="@android:color/black"
+            android:fontFamily="sans-serif-black"/>
+
+    </LinearLayout>
+
+
 </LinearLayout>
