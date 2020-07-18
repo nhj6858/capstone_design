@@ -192,7 +192,7 @@ public class AttendActivity extends AppCompatActivity {
         if(beacon_major.equals(lecture_major) && beacon_minor.equals(lecture_minor)){
             NetworkManager networkManager = new NetworkManager();
             try {
-                networkManager.logPost(value);
+                networkManager.logPost(getApplicationContext(), value);
             } catch (ParseException e) {
                 e.printStackTrace();
             }
