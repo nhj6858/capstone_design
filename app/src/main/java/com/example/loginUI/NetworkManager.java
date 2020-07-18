@@ -43,7 +43,7 @@ public class NetworkManager {
     static String beacon_minor;
     static String start_time;
     static String end_time;
-    static String responseTK;
+    String responseTK;
     public static String beacon_uuid = null;
     static int term = 0;
     static int repeatCount;
@@ -93,6 +93,8 @@ public class NetworkManager {
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         clientBuilder.addInterceptor(loggingInterceptor);
 
+        responseTK = PreferenceManager.GetString(context, "token");
+
 
         Interceptor interceptor = new Interceptor() {
             @Override
@@ -108,7 +110,7 @@ public class NetworkManager {
         };// 토큰을 통해 해당 user 의 정보 요청
 
         clientBuilder.interceptors().add(interceptor);
-        Log.d("okhttp",responseTK);
+
 
         retrofit = new Retrofit.Builder()
                 .baseUrl(NetworkService.API_URL)
@@ -163,6 +165,8 @@ public class NetworkManager {
 
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         clientBuilder.addInterceptor(loggingInterceptor);
+
+        responseTK = PreferenceManager.GetString(context, "token");
 
         Interceptor interceptor = new Interceptor() {
             @Override
@@ -231,12 +235,15 @@ public class NetworkManager {
             }
         });
 
+
     }
 
     public void AttendPost(final Context context) throws ParseException { // 출석 요청
 
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         clientBuilder.addInterceptor(loggingInterceptor);
+
+        responseTK = PreferenceManager.GetString(context, "token");
 
         Interceptor interceptor = new Interceptor() {
             @Override
@@ -313,10 +320,11 @@ public class NetworkManager {
     }
 
 
-
-    public void logPost(String value) throws ParseException {
+    public void logPost(final Context context, String value) throws ParseException {
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         clientBuilder.addInterceptor(loggingInterceptor);
+
+        responseTK = PreferenceManager.GetString(context, "token");
 
         Interceptor interceptor = new Interceptor() {
             @Override
@@ -371,6 +379,8 @@ public class NetworkManager {
     public Call<ResponseBody> Getresult(final Context context) throws ParseException {
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         clientBuilder.addInterceptor(loggingInterceptor);
+
+        responseTK = PreferenceManager.GetString(context, "token");
 
         Interceptor interceptor = new Interceptor() {
             @Override
