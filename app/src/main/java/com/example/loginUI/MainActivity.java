@@ -117,7 +117,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void LoginRequest() { // 로그인 과정
-
 //        new AsyncTask<Void, Void, ResponseBody>() {
 //
 //            @Override
@@ -163,7 +162,6 @@ public class MainActivity extends AppCompatActivity {
                         responseTK = jsonObject.getString("token");//callback 된 token 저장
                         beacon_uuid = jsonObject.getString("uuid");
                         Log.d("okhyo responseTK",responseTK);
-
                     } catch (JSONException | IOException e) {
                         e.printStackTrace();
                     }
@@ -186,7 +184,6 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(intent);
                     finish();
                 }
-
             }
 
             @Override

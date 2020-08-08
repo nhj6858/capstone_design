@@ -41,7 +41,7 @@ public class ScanActivity extends AppCompatActivity {
     private MinewBeaconManager mMinewBeaconManager;
 
     private static final int REQUEST_ENABLE_BT = 2;
-    private boolean isScanning;
+    private boolean isScanning = false;
 
     UserRssi comp = new UserRssi();
     private TextView tooltext,UserTxt,LectureTxt,TimeTxt;
@@ -180,7 +180,7 @@ public class ScanActivity extends AppCompatActivity {
     //비콘 설정 manager
 
     private void initListener() { // 비콘 스캔
-        tooltext.setOnClickListener(new View.OnClickListener() {
+        tooltext.setOnClickListener(new View.OnClickListener() { //비콘 스캔 버튼
             @Override
             public void onClick(View v) {
 
@@ -215,6 +215,36 @@ public class ScanActivity extends AppCompatActivity {
                 }
             }
         });
+
+        if (mMinewBeaconManager != null) {
+            BluetoothState bluetoothState = mMinewBeaconManager.checkBluetoothState();
+            switch (bluetoothState) {
+                case BluetoothStateNotSupported:
+                    Toast.makeText(ScanActivity.this, "Not Support BLE", Toast.LENGTH_SHORT).show();
+                    finish();
+                    break;
+                case BluetoothStatePowerOff:
+                    showBLEDialog();
+                    return;
+                case BluetoothStatePowerOn:
+                    break;
+            }
+        }
+        if (isScanning) {
+            isScanning = false;
+            tooltext.setText("Start");
+            if (mMinewBeaconManager != null) {
+                mMinewBeaconManager.stopScan();
+            }
+        } else {
+            isScanning = true;
+            tooltext.setText("Stop");
+            try {
+                mMinewBeaconManager.startScan();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
         mMinewBeaconManager.setDeviceManagerDelegateListener(new MinewBeaconManagerListener() {
             /**
@@ -275,36 +305,36 @@ public class ScanActivity extends AppCompatActivity {
 
                                 String deviceName = minewBeacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_Name).getStringValue();
                                 Log.d("beacon",deviceName + " 비콘 스캔중");
-//                                if (UUID.equals(PreferenceManager.GetString(getApplicationContext(),"uuid"))) {
-//                                    if(NetworkManager.list.isEmpty()){
-//                                        LectureCall();
-//                                    }
-//                                    else{
-//                                        if(NetworkManager.list_x>=NetworkManager.list.size()){
+                                if (UUID.equals(PreferenceManager.GetString(getApplicationContext(), "uuid"))) {
+                                    if (NetworkManager.list.isEmpty()) {
+                                        LectureCall();
+                                    } else {
+                                        if (NetworkManager.list_x >= NetworkManager.list.size()) {
 //                                            Intent intent = new Intent(ScanActivity.this,ResultActivity.class);
 //                                            startActivity(intent);
 //                                            finish();
-//                                        }else{
+                                        } else {
 //                                            Log.d("okhyo","getdataTK" + NetworkManager.getDataTK);
-//                                            if(NetworkManager.getDataTK==false){
-//                                                DataRequest();
-//                                            }else if(NetworkManager.getDataTK){
-//                                                btn.setText("ATTEND USUABLE");
-//                                                //mRecycle.setVisibility(View.GONE);
-//                                                //scanview.setVisibility(View.GONE);
-//
-//                                                String username = PreferenceManager.GetString(getApplicationContext(), "username");
-//                                                String room_name = PreferenceManager.GetString(getApplicationContext(), "room_name");
-//                                                String start_time = PreferenceManager.GetString(getApplicationContext(),"start_time");
-//                                                UserTxt.setText("학번 : " + username);
-//                                                LectureTxt.setText("현재 강의명 : " + room_name);
-//                                                TimeTxt.setText("강의 시작 시간 : " + start_time);
-//
-//                                            }
-//                                        }
-//
-//                                    }
-//                                }
+                                            if (NetworkManager.getDataTK == false) {
+                                                DataRequest();
+                                            } else if (NetworkManager.getDataTK) {
+                                                btn.setText("ATTEND USUABLE");
+                                                AttendPost();
+                                                //mRecycle.setVisibility(View.GONE);
+                                                //scanview.setVisibility(View.GONE);
+
+                                                String username = PreferenceManager.GetString(getApplicationContext(), "username");
+                                                String room_name = PreferenceManager.GetString(getApplicationContext(), "room_name");
+                                                String start_time = PreferenceManager.GetString(getApplicationContext(), "start_time");
+                                                UserTxt.setText("학번 : " + username);
+                                                LectureTxt.setText("현재 강의명 : " + room_name);
+                                                TimeTxt.setText("강의 시작 시간 : " + start_time);
+
+                                            }
+                                        }
+
+                                    }
+                                }
 
 
 
@@ -341,9 +371,10 @@ public class ScanActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         //stop scan
-        if (isScanning) {
-            mMinewBeaconManager.stopScan();
-        }
+
+//        if (isScanning) {
+//            mMinewBeaconManager.stopScan();
+//        }
     }
 
     private void showBLEDialog() {
@@ -411,7 +442,8 @@ public class ScanActivity extends AppCompatActivity {
                     finish();
                 } else {
                     Toast.makeText(getApplicationContext(), "오늘의 강의가 전부 끝났음", Toast.LENGTH_SHORT).show();
-                    Intent Bintent = new Intent(ScanActivity.this, MainActivity.class);
+                    mMinewBeaconManager.stopScan();
+                    Intent Bintent = new Intent(ScanActivity.this, ResultActivity.class);
                     startActivity(Bintent);
                     finish();
                 }
@@ -429,7 +461,6 @@ public class ScanActivity extends AppCompatActivity {
 
 
                     if (NetworkManager.resultTK) {
-
                         NetworkManager.resultTK = false;
                         btn.setText("ATTEND");
                         Intent intent = new Intent(ScanActivity.this, RepeatActivity.class);
