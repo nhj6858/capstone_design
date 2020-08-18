@@ -5,6 +5,7 @@ import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.Window;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,9 +26,10 @@ import retrofit2.Response;
 
 public class ResultActivity extends AppCompatActivity {
 
-    TextView ResultLecTxt;
-    TextView ResultAtdTxt;
     String lecture, attend;
+
+    private ListView listview;
+    private ListViewAdapter adapter;
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -55,42 +57,45 @@ public class ResultActivity extends AppCompatActivity {
         toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.colorwhite), PorterDuff.Mode.SRC_ATOP);
 
 
-        ResultLecTxt = findViewById(R.id.ResultLecTxt);
-        ResultAtdTxt = findViewById(R.id.ResultAtdTxt);
+        adapter = new ListViewAdapter();
+        listview = (ListView) findViewById(R.id.listview);
+        listview.setAdapter(adapter);
+
         NetworkManager networkManager = new NetworkManager();
-        try {
-            Call<ResponseBody> getResult = networkManager.Getresult(getApplicationContext());
-            getResult.enqueue(new Callback<ResponseBody>() {
-                @Override
-                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                    if (response.isSuccessful()) {
-                        try {
-                            String res = response.body().string();
-                            // if (res == null) return;
-                            JSONObject jsonObject = new JSONObject(res);
-                            lecture = jsonObject.getString("lecture");
-                            attend = jsonObject.getString("final_attend");
+        for (int i=0 ; i<NetworkManager.list.size();i++){
+            try {
+                Call<ResponseBody> getResult = networkManager.Getresult(getApplicationContext(),NetworkManager.list.get(i));
+                getResult.enqueue(new Callback<ResponseBody>() {
+                    @Override
+                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                        if (response.isSuccessful()) {
+                            try {
+                                String res = response.body().string();
+                                // if (res == null) return;
+                                JSONObject jsonObject = new JSONObject(res);
+                                lecture = jsonObject.getString("lecture");
+                                attend = jsonObject.getString("final_attend");
 
+                                adapter.addItem(lecture,attend);
 
-                            ResultLecTxt.setText("강의명 : " + lecture);
-                            ResultAtdTxt.setText("[출석 결과 : " + attend + "  ]");
-
-                        } catch (IOException | JSONException e) {
-                            e.printStackTrace();
+                                adapter.notifyDataSetChanged();
+                            } catch (IOException | JSONException e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
-                }
+                    
+                    @Override
+                    public void onFailure(Call<ResponseBody> call, Throwable t) {
 
-
-                @Override
-                public void onFailure(Call<ResponseBody> call, Throwable t) {
-
-                }
-            });
-        } catch (ParseException e) {
-            e.printStackTrace();
+                    }
+                });
+            } catch (ParseException e) {
+                e.printStackTrace();
+                Toast.makeText(getApplicationContext(), "수업의 모든 출석이 진행되었는지 확인 요망", Toast.LENGTH_SHORT).show();
+            }
         }
-        Toast.makeText(getApplicationContext(), "수업의 모든 출석이 진행되었는지 확인 요망", Toast.LENGTH_SHORT).show();
+
 
 
     }
