@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -84,13 +83,15 @@ public class RepeatActivity extends AppCompatActivity {
         }else {
             NetworkManager.list_x++;
             if(NetworkManager.list_x < NetworkManager.list.size()){
+                NetworkManager.getDataTK = false;
                 Intent intent = new Intent(RepeatActivity.this, ScanActivity.class);
                 startActivity(intent);
                 finish();
             }else if(NetworkManager.list_x >= NetworkManager.list.size()) {
-                NetworkManager.list_x=0;
+                NetworkManager.getDataTK = false;
+//                NetworkManager.list_x=0;
                 Toast.makeText(getApplicationContext(),"오늘의 강의가 전부 끝났음",Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(RepeatActivity.this,ScanActivity.class);
+                Intent intent = new Intent(RepeatActivity.this, ResultActivity.class);
                 startActivity(intent);
                 finish();
 
@@ -233,4 +234,3 @@ public class RepeatActivity extends AppCompatActivity {
     }
 
 }
-

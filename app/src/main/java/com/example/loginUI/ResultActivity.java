@@ -25,7 +25,8 @@ import retrofit2.Response;
 
 public class ResultActivity extends AppCompatActivity {
 
-    TextView resultTxt;
+    TextView ResultLecTxt;
+    TextView ResultAtdTxt;
     String lecture, attend;
 
     @Override
@@ -50,43 +51,46 @@ public class ResultActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.resultToolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
         toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.colorwhite), PorterDuff.Mode.SRC_ATOP);
 
 
+        ResultLecTxt = findViewById(R.id.ResultLecTxt);
+        ResultAtdTxt = findViewById(R.id.ResultAtdTxt);
+        NetworkManager networkManager = new NetworkManager();
+        try {
+            Call<ResponseBody> getResult = networkManager.Getresult(getApplicationContext());
+            getResult.enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    if (response.isSuccessful()) {
+                        try {
+                            String res = response.body().string();
+                            // if (res == null) return;
+                            JSONObject jsonObject = new JSONObject(res);
+                            lecture = jsonObject.getString("lecture");
+                            attend = jsonObject.getString("final_attend");
 
-        resultTxt = findViewById(R.id.ResultLecTxt);
-//        NetworkManager networkManager = new NetworkManager();
-//        try {
-//            Call<ResponseBody> getResult = networkManager.Getresult(getApplicationContext());
-//            getResult.enqueue(new Callback<ResponseBody>() {
-//                @Override
-//                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-//                    if (response.isSuccessful()) {
-//                        try {
-//                            String  res = response.body().string();
-//                           // if (res == null) return;
-//                            JSONObject jsonObject = new JSONObject(res);
-//                            lecture = jsonObject.getString("lecture");
-//                            attend = jsonObject.getString("final_attend");
-//
-//                            resultTxt.setText("강의명 : "+lecture + "\n[출석 결과 : " + attend + "  ]");
-//
-//                        } catch (IOException | JSONException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                }
-//
-//
-//                @Override
-//                public void onFailure(Call<ResponseBody> call, Throwable t) {
-//
-//                }
-//            });
-//        } catch (ParseException e) {
-//            e.printStackTrace();
-//        }
-//        Toast.makeText(getApplicationContext(), "수업의 모든 출석이 진행되었는지 확인 요망", Toast.LENGTH_SHORT).show();
+
+                            ResultLecTxt.setText("강의명 : " + lecture);
+                            ResultAtdTxt.setText("[출석 결과 : " + attend + "  ]");
+
+                        } catch (IOException | JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+                }
+            });
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        Toast.makeText(getApplicationContext(), "수업의 모든 출석이 진행되었는지 확인 요망", Toast.LENGTH_SHORT).show();
 
 
     }

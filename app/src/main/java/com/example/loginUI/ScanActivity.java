@@ -41,7 +41,7 @@ public class ScanActivity extends AppCompatActivity {
     private MinewBeaconManager mMinewBeaconManager;
 
     private static final int REQUEST_ENABLE_BT = 2;
-    private boolean isScanning;
+    private boolean isScanning = false;
 
     UserRssi comp = new UserRssi();
     private TextView tooltext,UserTxt,LectureTxt,TimeTxt;
@@ -152,6 +152,14 @@ public class ScanActivity extends AppCompatActivity {
 //                    Toast.makeText(getApplicationContext(),"결과를 불러올 출석이 존재하지 않음",Toast.LENGTH_SHORT);
 //                }
 
+
+            }
+        });
+
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AttendPost();
             }
         });
 
@@ -172,7 +180,7 @@ public class ScanActivity extends AppCompatActivity {
     //비콘 설정 manager
 
     private void initListener() { // 비콘 스캔
-        tooltext.setOnClickListener(new View.OnClickListener() {
+        tooltext.setOnClickListener(new View.OnClickListener() { //비콘 스캔 버튼
             @Override
             public void onClick(View v) {
 
@@ -207,6 +215,36 @@ public class ScanActivity extends AppCompatActivity {
                 }
             }
         });
+
+        if (mMinewBeaconManager != null) {
+            BluetoothState bluetoothState = mMinewBeaconManager.checkBluetoothState();
+            switch (bluetoothState) {
+                case BluetoothStateNotSupported:
+                    Toast.makeText(ScanActivity.this, "Not Support BLE", Toast.LENGTH_SHORT).show();
+                    finish();
+                    break;
+                case BluetoothStatePowerOff:
+                    showBLEDialog();
+                    return;
+                case BluetoothStatePowerOn:
+                    break;
+            }
+        }
+        if (isScanning) {
+            isScanning = false;
+            tooltext.setText("Start");
+            if (mMinewBeaconManager != null) {
+                mMinewBeaconManager.stopScan();
+            }
+        } else {
+            isScanning = true;
+            tooltext.setText("Stop");
+            try {
+                mMinewBeaconManager.startScan();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
         mMinewBeaconManager.setDeviceManagerDelegateListener(new MinewBeaconManagerListener() {
             /**
@@ -266,25 +304,31 @@ public class ScanActivity extends AppCompatActivity {
                                 mAdapter.setItems(minewBeacons);
 
                                 String deviceName = minewBeacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_Name).getStringValue();
-                                Toast.makeText(getApplicationContext(), deviceName + "  out range", Toast.LENGTH_SHORT).show();
                                 Log.d("beacon",deviceName + " 비콘 스캔중");
-                                if (UUID.equals(PreferenceManager.GetString(getApplicationContext(),"uuid"))) {
-                                    if(NetworkManager.list.isEmpty()){
+                                if (UUID.equals(PreferenceManager.GetString(getApplicationContext(), "uuid"))) {
+                                    if (NetworkManager.list.isEmpty()) {
                                         LectureCall();
-                                    }
-                                    else{
-                                        if(NetworkManager.list_x>=NetworkManager.list.size()){
-                                            Intent intent = new Intent(ScanActivity.this,ResultActivity.class);
-                                            startActivity(intent);
-                                            finish();
-                                        }else{
-                                            if(NetworkManager.getDataTK==false){
+                                    } else {
+                                        if (NetworkManager.list_x >= NetworkManager.list.size()) {
+//                                            Intent intent = new Intent(ScanActivity.this,ResultActivity.class);
+//                                            startActivity(intent);
+//                                            finish();
+                                        } else {
+//                                            Log.d("okhyo","getdataTK" + NetworkManager.getDataTK);
+                                            if (NetworkManager.getDataTK == false) {
                                                 DataRequest();
-                                            }else if(NetworkManager.getDataTK){
+                                            } else if (NetworkManager.getDataTK) {
                                                 btn.setText("ATTEND USUABLE");
-                                                mRecycle.setVisibility(View.GONE);
-                                                scanview.setVisibility(View.GONE);
-                                                Attend();
+                                                AttendPost();
+                                                //mRecycle.setVisibility(View.GONE);
+                                                //scanview.setVisibility(View.GONE);
+
+                                                String username = PreferenceManager.GetString(getApplicationContext(), "username");
+                                                String room_name = PreferenceManager.GetString(getApplicationContext(), "room_name");
+                                                String start_time = PreferenceManager.GetString(getApplicationContext(), "start_time");
+                                                UserTxt.setText("학번 : " + username);
+                                                LectureTxt.setText("현재 강의명 : " + room_name);
+                                                TimeTxt.setText("강의 시작 시간 : " + start_time);
 
                                             }
                                         }
@@ -327,9 +371,10 @@ public class ScanActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         //stop scan
-        if (isScanning) {
-            mMinewBeaconManager.stopScan();
-        }
+
+//        if (isScanning) {
+//            mMinewBeaconManager.stopScan();
+//        }
     }
 
     private void showBLEDialog() {
@@ -347,10 +392,10 @@ public class ScanActivity extends AppCompatActivity {
     }
 
     public void LectureCall() {
-        boolean lecture_call=false;
+
         NetworkManager networkManager = new NetworkManager();
         try {
-            lecture_call =networkManager.LectureCall(getApplicationContext());
+            networkManager.LectureCall(getApplicationContext());
             Log.d("okhttp","network lectuercall success");
 
         } catch (Exception e) {
@@ -358,7 +403,6 @@ public class ScanActivity extends AppCompatActivity {
             Log.d("okhttp","network lecture call fail");
         }
 
-        Log.d("okhyo", "lecture call : " + String.valueOf(lecture_call));
 
     }
 
@@ -374,69 +418,66 @@ public class ScanActivity extends AppCompatActivity {
         }
 
     }
-    public void Attend(){
-        int repeatCount = PreferenceManager.GetInteger(getApplicationContext(),"repeatCount");
-        Log.d("okhyo","attend activity repeatcount : " + repeatCount);
 
-        if(repeatCount <= 0){
-            NetworkManager.list_x++;
-            if(NetworkManager.list_x < NetworkManager.list.size()){
-                Intent Aintent = new Intent(ScanActivity.this, ScanActivity.class);
-                startActivity(Aintent);
-                finish();
-            }else{
-                Toast.makeText(getApplicationContext(),"오늘의 강의가 전부 끝났음",Toast.LENGTH_SHORT).show();
-                Intent Bintent = new Intent(ScanActivity.this,MainActivity.class);
-                startActivity(Bintent);
-                finish();
-            }
-        }
-
-        AttendPost();
-    }
-    public void AttendPost(){
+    public void AttendPost() {
         final NetworkManager networkManager = new NetworkManager();
 
 
-        String username = PreferenceManager.GetString(getApplicationContext(), "username");
-        String room_name = PreferenceManager.GetString(getApplicationContext(), "room_name");
-        String start_time = PreferenceManager.GetString(getApplicationContext(),"start_time");
         final String beacon_major = PreferenceManager.GetString(getApplicationContext(), "beacon_major");
         final String beacon_minor = PreferenceManager.GetString(getApplicationContext(), "beacon_minor");
-        final int repeatCount = PreferenceManager.GetInteger(getApplicationContext(), "count");
+        final int repeatCount = PreferenceManager.GetInteger(getApplicationContext(), "repeatCount");
 
-
-        UserTxt.setText("학번 : " + username);
-        LectureTxt.setText("강의명 : " + room_name);
-        TimeTxt.setText("강의 시작 시간 : " + start_time);
 
         TimeCheck();
-        if(compare<1){ // 비콘스캔 스레드로 인해 초단위로 현재 시간과 비교한다.
-            Toast.makeText(getApplicationContext(),"출석 시간이 되지 않음",Toast.LENGTH_LONG).show();
-        }else{
+        if (compare < 1) {
+            Toast.makeText(getApplicationContext(), "출석 시간이 되지 않음", Toast.LENGTH_LONG).show();
+        } else {
+            Log.d("okhyo", "attend activity repeatcount : " + repeatCount);
+
+            if (repeatCount <= 0) {
+                NetworkManager.list_x++;
+                if (NetworkManager.list_x < NetworkManager.list.size()) {
+                    Intent Aintent = new Intent(ScanActivity.this, ScanActivity.class);
+                    startActivity(Aintent);
+                    finish();
+                } else {
+                    Toast.makeText(getApplicationContext(), "오늘의 강의가 전부 끝났음", Toast.LENGTH_SHORT).show();
+                    mMinewBeaconManager.stopScan();
+                    Intent Bintent = new Intent(ScanActivity.this, ResultActivity.class);
+                    startActivity(Bintent);
+                    finish();
+                }
+            }
+
             if (Major.equals(beacon_major) && Minor.equals(beacon_minor)) {
                 //비콘 스캔 값과 가져온 비콘 값을 비교후 일치시 전송
                 if (repeatCount != 0) {
                     try {
                         networkManager.AttendPost(getApplicationContext());
-
                     } catch (ParseException e) {
+                        Toast.makeText(getApplicationContext(), "출석요청 에러", Toast.LENGTH_SHORT).show();
                         e.printStackTrace();
                     }
 
 
                     if (NetworkManager.resultTK) {
-                        NetworkManager.getDataTK=false;
+                        NetworkManager.resultTK = false;
                         btn.setText("ATTEND");
                         Intent intent = new Intent(ScanActivity.this, RepeatActivity.class);
                         startActivity(intent);
                         finish();
+
+                    } else {
+                        Toast.makeText(getApplicationContext(), "NetworkManager resultTK error", Toast.LENGTH_SHORT).show();
                     }
+                } else {
+                    Toast.makeText(getApplicationContext(), "수업이 끝났는데 출석 요청", Toast.LENGTH_SHORT).show();
                 }
 
+            } else {
+                Toast.makeText(getApplicationContext(), "현재 강의실의 비콘값과 일치하지 않음", Toast.LENGTH_SHORT).show();
             }
         }
-
 //        btn.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View v) {
@@ -469,6 +510,7 @@ public class ScanActivity extends AppCompatActivity {
 //            }
 //        });
 
+
     }
     public void TimeCheck(){
         int repeatCount = PreferenceManager.GetInteger(getApplicationContext(),"repeatCount");//횟수 불러옴
@@ -484,7 +526,7 @@ public class ScanActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
             String start_time = PreferenceManager.GetString(getApplicationContext(),"start_time");
-            Log.d("okhyo","Result Activity start time : " + start_time);
+            Log.d("okhyo", "Time Check start time : " + start_time);
 
             Date dateCreated = null;
             try {
@@ -494,7 +536,7 @@ public class ScanActivity extends AppCompatActivity {
             }
             compare = dateNow.compareTo(dateCreated);
             // 1이면 현재시간이 더 큰 값 0 이면 일치 -1이면 비교 시간 이전
-            Log.d("okhyo", "attend activity compare : "+ String.valueOf(compare));
+            Log.d("okhyo", "Time check compare : " + String.valueOf(compare));
         }
     }
 
@@ -507,7 +549,7 @@ public class ScanActivity extends AppCompatActivity {
         if(beacon_major.equals(lecture_major) && beacon_minor.equals(lecture_minor)){
             NetworkManager networkManager = new NetworkManager();
             try {
-                networkManager.logPost(value);
+                networkManager.logPost(getApplicationContext(), value);
             } catch (ParseException e) {
                 e.printStackTrace();
             }

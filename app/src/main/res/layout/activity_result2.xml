@@ -49,7 +49,9 @@
             android:hint= "출석 결과 : O "
             android:textSize="25dp"
             android:textColor="@android:color/black"
-            android:fontFamily="sans-serif-black"/>
+            android:fontFamily="sans-serif-black"
+            android:textAlignment="center"
+            android:gravity="center_horizontal" />
 
     </LinearLayout>
 

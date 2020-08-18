@@ -52,7 +52,6 @@ public class MainActivity extends AppCompatActivity {
             startService(mBackgroundServiceIntent);
         }
 
-
         loginid = findViewById(R.id.loginid);
         loginpw = findViewById(R.id.loginpw);
         loginpw.setTransformationMethod(new PasswordTransformationMethod());
@@ -77,11 +76,11 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) { // 로그인 버튼 클릭시 로그인
                 requestID = loginid.getText().toString();
                 requestPW = loginpw.getText().toString();
-//                LoginRequest();
-                Intent intent = new Intent(MainActivity.this, ScanActivity.class);
-                //intent.putExtra("beacon_uuid",beacon_uuid);
-                startActivity(intent);
-                finish();
+                LoginRequest();
+//                Intent intent = new Intent(MainActivity.this, ScanActivity.class);
+//                //intent.putExtra("beacon_uuid",beacon_uuid);
+//                startActivity(intent);
+//                finish();
             }
         });
 
@@ -118,7 +117,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void LoginRequest() { // 로그인 과정
-
 //        new AsyncTask<Void, Void, ResponseBody>() {
 //
 //            @Override
@@ -164,7 +162,6 @@ public class MainActivity extends AppCompatActivity {
                         responseTK = jsonObject.getString("token");//callback 된 token 저장
                         beacon_uuid = jsonObject.getString("uuid");
                         Log.d("okhyo responseTK",responseTK);
-
                     } catch (JSONException | IOException e) {
                         e.printStackTrace();
                     }
@@ -187,7 +184,6 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(intent);
                     finish();
                 }
-
             }
 
             @Override
