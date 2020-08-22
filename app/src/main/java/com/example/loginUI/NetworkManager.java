@@ -49,6 +49,7 @@ public class NetworkManager {
     static int repeatCount;
     static int list_x;
     int id;
+    int end;
 
     static ArrayList<String> list = new ArrayList<>();
     public static boolean getDataTK = false;
@@ -273,7 +274,7 @@ public class NetworkManager {
 
         startATD = timeCheck(context);
 
-        int end =PreferenceManager.GetInteger(context,"repeatCount");
+        end =PreferenceManager.GetInteger(context,"repeatCount");
         Log.d("okhyo : " , "end : " +Integer.toString(end));
         Map<String, String> hashMap = new HashMap<>();
 
@@ -289,6 +290,13 @@ public class NetworkManager {
         S_attend.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if(end ==1){
+                    try {
+                        Getresult(context,list.get(list_x));
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
 
             }
             @Override
@@ -376,7 +384,7 @@ public class NetworkManager {
 
     }
 
-    public Call<ResponseBody> Getresult(final Context context) throws ParseException {
+    public Call<ResponseBody> Getresult(final Context context,String lectureCode) throws ParseException {
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         clientBuilder.addInterceptor(loggingInterceptor);
 
