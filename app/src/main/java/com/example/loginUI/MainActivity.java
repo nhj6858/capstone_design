@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
             requestPW = PreferenceManager.GetString(getApplicationContext(), "password");
             loginid.setText(requestID);
             loginpw.setText(requestPW);
-//            LoginRequest();과정을 보여주기 위해 버튼 시연을 위한 임시 주석처리
+            LoginRequest();//과정을 보여주기 위해 버튼 시연을 위한 임시 주석처리
         }
 
         loginid.setOnEditorActionListener(editorActionListener);
@@ -76,11 +76,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) { // 로그인 버튼 클릭시 로그인
                 requestID = loginid.getText().toString();
                 requestPW = loginpw.getText().toString();
+                Log.d("okhyo", requestID + requestPW);
                 LoginRequest();
-//                Intent intent = new Intent(MainActivity.this, ScanActivity.class);
-//                //intent.putExtra("beacon_uuid",beacon_uuid);
-//                startActivity(intent);
-//                finish();
             }
         });
 
@@ -117,36 +114,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void LoginRequest() { // 로그인 과정
-//        new AsyncTask<Void, Void, ResponseBody>() {
-//
-//            @Override
-//            protected ResponseBody doInBackground(Void... params) {
-//                NetworkManager networkManager = new NetworkManager();
-//                Call<ResponseBody> login = networkManager.LoginRequest(requestID, requestPW);
-//
-//
-//                try {
-//                    String res = login.execute().body().string();
-//
-//                    JSONObject jsonObject = new JSONObject(res);
-//                    responseTK = jsonObject.getString("token");//callback 된 token 저장
-//                    beacon_uuid = jsonObject.getString("uuid");
-//                    Log.d("okhyo responseTK", responseTK);
-//                } catch (IOException | JSONException e) {
-//                    e.printStackTrace();
-//                }
-//                if (loginTK.isEmpty()) { // 자동 로그인을 위해 각각의 값 저장
-//                    PreferenceManager.SaveString(getApplicationContext(), "token", responseTK);
-//                    PreferenceManager.SaveString(getApplicationContext(), "username", requestID);
-//                    PreferenceManager.SaveString(getApplicationContext(), "password", requestPW);
-//                }
-//
-//                PreferenceManager.SaveString(getApplicationContext(), "uuid", beacon_uuid);
-//                return null;
-//            }
-//
-//
-//        }.execute(); // 동기식 방식, post 요청전에 다음 코드가 먼저 실행되서 똑같이 안됨
 
         NetworkManager networkManager = new NetworkManager();
         Call<ResponseBody> login = networkManager.LoginRequest(requestID,requestPW);

@@ -77,7 +77,7 @@ public class ScanActivity extends AppCompatActivity {
         super.onStart();
         mRecycle.setVisibility(View.VISIBLE);
         scanview.setVisibility(View.VISIBLE);
-
+        mMinewBeaconManager.startScan();
 //        DataRequest();
 
     }
@@ -87,6 +87,7 @@ public class ScanActivity extends AppCompatActivity {
         super.onResume();
         mRecycle.setVisibility(View.VISIBLE);
         scanview.setVisibility(View.VISIBLE);
+        mMinewBeaconManager.startScan();
         //AttendPost();
     }
 
@@ -202,12 +203,14 @@ public class ScanActivity extends AppCompatActivity {
                     isScanning = false;
                     tooltext.setText("Start");
                     if (mMinewBeaconManager != null) {
+                        Log.d("beacon", "stop scan");
                         mMinewBeaconManager.stopScan();
                     }
                 } else {
                     isScanning = true;
                     tooltext.setText("Stop");
                     try {
+                        Log.d("beacon", "start scan");
                         mMinewBeaconManager.startScan();
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -220,6 +223,7 @@ public class ScanActivity extends AppCompatActivity {
             BluetoothState bluetoothState = mMinewBeaconManager.checkBluetoothState();
             switch (bluetoothState) {
                 case BluetoothStateNotSupported:
+                    Log.d("okhyo", "Not Support BLE");
                     Toast.makeText(ScanActivity.this, "Not Support BLE", Toast.LENGTH_SHORT).show();
                     finish();
                     break;
@@ -293,6 +297,7 @@ public class ScanActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        Log.d("beacon", "scanning");
                         Collections.sort(minewBeacons, comp);
                         if (state == 1 || state == 2) {
                         } else {
