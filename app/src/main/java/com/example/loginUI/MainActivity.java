@@ -59,10 +59,10 @@ public class MainActivity extends AppCompatActivity {
 
 
         loginTK = PreferenceManager.GetString(getApplicationContext(), "token"); // token 에 저장된 값을 불러옴
+        requestID = PreferenceManager.GetString(getApplicationContext(), "username");
+        requestPW = PreferenceManager.GetString(getApplicationContext(), "password");
 
         if (!(loginTK.isEmpty())) {// 자동로그인
-            requestID = PreferenceManager.GetString(getApplicationContext(), "username");
-            requestPW = PreferenceManager.GetString(getApplicationContext(), "password");
             loginid.setText(requestID);
             loginpw.setText(requestPW);
             LoginRequest();//과정을 보여주기 위해 버튼 시연을 위한 임시 주석처리

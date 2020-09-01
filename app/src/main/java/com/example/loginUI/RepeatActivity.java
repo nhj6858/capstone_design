@@ -82,6 +82,7 @@ public class RepeatActivity extends AppCompatActivity {
             }
         }else {
             NetworkManager.list_x++;
+            Log.d("list", "list x:" + NetworkManager.list_x + "size :" + NetworkManager.list.size());
             if(NetworkManager.list_x < NetworkManager.list.size()){
                 NetworkManager.getDataTK = false;
                 Intent intent = new Intent(RepeatActivity.this, ScanActivity.class);

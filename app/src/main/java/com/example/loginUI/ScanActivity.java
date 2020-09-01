@@ -376,10 +376,10 @@ public class ScanActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         //stop scan
-
-//        if (isScanning) {
-//            mMinewBeaconManager.stopScan();
-//        }
+        mMinewBeaconManager.stopScan();
+        if (isScanning) {
+            mMinewBeaconManager.stopScan();
+        }
     }
 
     private void showBLEDialog() {
