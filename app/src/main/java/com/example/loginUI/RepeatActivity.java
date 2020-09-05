@@ -36,7 +36,8 @@ public class RepeatActivity extends AppCompatActivity {
         btn = findViewById(R.id.ReAttendBtn);
 
 
-        repeatCount = PreferenceManager.GetInteger(getApplicationContext(),"repeatCount");//횟수 불러옴
+        //repeatCount = PreferenceManager.GetInteger(getApplicationContext(),"repeatCount");//횟수 불러옴
+        repeatCount = NetworkManager.repeatCount;//횟수 불러옴
         attend.setText("Repeat Count : " + repeatCount);
         Log.d("okhyo", "RepeatActivity RepeatCount : " + repeatCount);
 
@@ -49,7 +50,7 @@ public class RepeatActivity extends AppCompatActivity {
                 try {
                     Toast.makeText(getApplicationContext(),"재 출석 요청 보냄",Toast.LENGTH_SHORT).show();
                     networkManager.AttendPost(getApplicationContext());//출석요청
-                    repeatCount--;//재요청 횟수 차감
+                    //repeatCount--;//재요청 횟수 차감
                     PreferenceManager.SaveInteger(getApplicationContext(), "repeatCount", repeatCount);//횟수 저장
 
 
@@ -63,7 +64,7 @@ public class RepeatActivity extends AppCompatActivity {
 
             } else {//출석 시간 이전일 경우 Attend Activity 로 돌아가서 service 자동 출석 대기
 
-                repeatCount--;//재요청 횟수 차감
+                //repeatCount--;//재요청 횟수 차감
                 PreferenceManager.SaveInteger(getApplicationContext(), "repeatCount", repeatCount);//횟수 저장
 
                 Toast.makeText(getApplicationContext(),"재 출석 요청을 보내지 않음",Toast.LENGTH_SHORT).show();

@@ -17,6 +17,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -46,10 +47,10 @@ public class NetworkManager {
     String responseTK;
     public static String beacon_uuid = null;
     static int term = 0;
-    static int repeatCount;
-    static int list_x;
+    public static int repeatCount;
+    public static int list_x;
     int id;
-    int end;
+    public int end;
 
     static ArrayList<String> list = new ArrayList<>();
     public static boolean getDataTK = false;
@@ -61,7 +62,8 @@ public class NetworkManager {
     Retrofit retrofit;
     NetworkService networkService;
     HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
-    OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder();
+    OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder().connectTimeout(50, TimeUnit.SECONDS).readTimeout(50, TimeUnit.SECONDS);
+    //OkHttpClient clientBuilder2 = new OkHttpClient.Builder().connectTimeout(50, TimeUnit.SECONDS).readTimeout(50, TimeUnit.SECONDS).build();
 
     public void Retrofit(){
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
@@ -136,6 +138,7 @@ public class NetworkManager {
 //                            list.add(jsonObject.getString(String.valueOf(i+1)));
 //                        }
                         JSONObject jsonObject = new JSONObject(res);
+                        list.clear();
                         for(int i=0;i<jsonObject.length();i++){
                             list.add(jsonObject.getString(String.valueOf(i+1)));
                         }
@@ -274,29 +277,33 @@ public class NetworkManager {
 
         startATD = timeCheck(context);
 
-        end =PreferenceManager.GetInteger(context,"repeatCount");
+       // end = PreferenceManager.GetInteger(context,"repeatCount");
+        //end = PreferenceManager.GetInteger(context,"repeatCount");
         Log.d("okhyo : " , "end : " +Integer.toString(end));
         Map<String, String> hashMap = new HashMap<>();
 
         hashMap.put("username", requestID);
         hashMap.put("lecture", list.get(list_x));
         hashMap.put("result", startATD);
-        if(end ==1) {hashMap.put("end","end");}
+        if(repeatCount ==1) {hashMap.put("end","end");getDataTK=false;list_x++;}
 
 
         Call<ResponseBody> S_attend = networkService.post_attend(hashMap);
+        repeatCount = repeatCount -1;
+        //PreferenceManager.SaveInteger(context,"repeatCount",end);
+
 
 
         S_attend.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if(end ==1){
-                    try {
-                        Getresult(context,list.get(list_x));
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    }
-                }
+//                if(end ==1){
+//                    try {
+//                        Getresult(context,list.get(list_x));
+//                    } catch (ParseException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
 
             }
             @Override
@@ -310,7 +317,7 @@ public class NetworkManager {
         DateFormat dateFormat = new SimpleDateFormat("HH:mm");
 
 
-        if(NetworkManager.repeatCount != 0){
+        if(repeatCount != 0){
             calendar.setTime(dateFormat.parse(start_time));
             calendar.add(Calendar.MINUTE,term);
 
@@ -386,6 +393,7 @@ public class NetworkManager {
 
     public Call<ResponseBody> Getresult(final Context context,String lectureCode) throws ParseException {
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        clientBuilder.interceptors().clear();
         clientBuilder.addInterceptor(loggingInterceptor);
 
         responseTK = PreferenceManager.GetString(context, "token");
@@ -403,6 +411,7 @@ public class NetworkManager {
             }
         };// 토큰을 통해 해당 user 의 정보 요청
 
+
         clientBuilder.interceptors().add(interceptor);
 
         retrofit = new Retrofit.Builder()
@@ -416,7 +425,7 @@ public class NetworkManager {
         Map<String, String> hashMap = new HashMap<>();
 
         hashMap.put("username", requestID);
-        hashMap.put("lecture", list.get(list_x));
+        hashMap.put("lecture", lectureCode);
 
         Call<ResponseBody> getResult = networkService.get_result(hashMap);
 

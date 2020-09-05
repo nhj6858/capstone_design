@@ -57,16 +57,19 @@ public class ResultActivity extends AppCompatActivity {
         toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.colorwhite), PorterDuff.Mode.SRC_ATOP);
 
 
-        NetworkManager.list.add("19");
-        NetworkManager.list.add("18");
+//        NetworkManager.list.add("19");
+//        NetworkManager.list.add("18");
 
         adapter = new ListViewAdapter();
         listview = (ListView) findViewById(R.id.listview);
         listview.setAdapter(adapter);
 
+
+
         NetworkManager networkManager = new NetworkManager();
         for (int i=0 ; i<NetworkManager.list.size();i++){
             try {
+                Log.d("result","listcode : "+NetworkManager.list.get(i));
                 Call<ResponseBody> getResult = networkManager.Getresult(getApplicationContext(),NetworkManager.list.get(i));
                 getResult.enqueue(new Callback<ResponseBody>() {
                     @Override
