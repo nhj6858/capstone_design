@@ -416,7 +416,7 @@ public class NetworkManager {
         Map<String, String> hashMap = new HashMap<>();
 
         hashMap.put("username", requestID);
-        hashMap.put("lecture", list.get(list_x-1));
+        hashMap.put("lecture", list.get(list_x));
 
         Call<ResponseBody> getResult = networkService.get_result(hashMap);
 

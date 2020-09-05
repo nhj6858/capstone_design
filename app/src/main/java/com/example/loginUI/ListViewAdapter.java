@@ -24,7 +24,7 @@ public class ListViewAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        final int pos = position;
+
         final Context context = parent.getContext();
 
         if(convertView == null){
@@ -37,7 +37,7 @@ public class ListViewAdapter extends BaseAdapter {
 
         ListViewItem listViewItem = listViewITemList.get(position);
 
-        lecture.setText(listViewItem.getLecture());
+        lecture.setText(listViewItem.getLecture() + " : ");
         result.setText(listViewItem.getResult());
 
         return convertView;
@@ -57,6 +57,8 @@ public class ListViewAdapter extends BaseAdapter {
         ListViewItem item = new ListViewItem();
         item.setLecture(lecture);
         item.setResult(result);
+
+        listViewITemList.add(item);
     }
 
 

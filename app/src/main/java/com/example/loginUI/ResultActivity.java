@@ -3,10 +3,10 @@ package com.example.loginUI;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.Window;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -28,8 +28,8 @@ public class ResultActivity extends AppCompatActivity {
 
     String lecture, attend;
 
-    private ListView listview;
-    private ListViewAdapter adapter;
+    ListView listview;
+    ListViewAdapter adapter;
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -57,6 +57,9 @@ public class ResultActivity extends AppCompatActivity {
         toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.colorwhite), PorterDuff.Mode.SRC_ATOP);
 
 
+        NetworkManager.list.add("19");
+        NetworkManager.list.add("18");
+
         adapter = new ListViewAdapter();
         listview = (ListView) findViewById(R.id.listview);
         listview.setAdapter(adapter);
@@ -75,10 +78,11 @@ public class ResultActivity extends AppCompatActivity {
                                 JSONObject jsonObject = new JSONObject(res);
                                 lecture = jsonObject.getString("lecture");
                                 attend = jsonObject.getString("final_attend");
+                                Log.d("okhyo", "lecture : " + lecture + "attend : " + attend);
 
                                 adapter.addItem(lecture,attend);
-
                                 adapter.notifyDataSetChanged();
+
                             } catch (IOException | JSONException e) {
                                 e.printStackTrace();
                             }
@@ -94,6 +98,7 @@ public class ResultActivity extends AppCompatActivity {
                 e.printStackTrace();
                 Toast.makeText(getApplicationContext(), "수업의 모든 출석이 진행되었는지 확인 요망", Toast.LENGTH_SHORT).show();
             }
+
         }
 
 

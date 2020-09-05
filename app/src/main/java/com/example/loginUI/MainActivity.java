@@ -146,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("okhyo","token" + responseTK);
 
                 if (!(responseTK.isEmpty())) { // token 이 저정된 경우 로그인 창으로 넘어감
-                    Intent intent = new Intent(MainActivity.this, ScanActivity.class);
+                    Intent intent = new Intent(MainActivity.this, ResultActivity.class);
                     //intent.putExtra("beacon_uuid",beacon_uuid);
                     startActivity(intent);
                     finish();
