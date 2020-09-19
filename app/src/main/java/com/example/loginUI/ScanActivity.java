@@ -42,6 +42,7 @@ public class ScanActivity extends AppCompatActivity {
 
     private static final int REQUEST_ENABLE_BT = 2;
     private boolean isScanning = false;
+    private boolean isOut = true;
 
     UserRssi comp = new UserRssi();
     private TextView tooltext,UserTxt,LectureTxt,TimeTxt;
@@ -258,9 +259,10 @@ public class ScanActivity extends AppCompatActivity {
              */
             @Override
             public void onAppearBeacons(List<MinewBeacon> minewBeacons) {
-                if(NetworkManager.getDataTK){
+                if(NetworkManager.getDataTK && isOut){
                     for (MinewBeacon minewBeacon : minewBeacons) {
                         log_post(minewBeacon,"IN");
+                        isOut = false;
                         Log.d("beacon", " 비콘이 나타남");
                     }
                 }
@@ -274,9 +276,10 @@ public class ScanActivity extends AppCompatActivity {
              */
             @Override
             public void onDisappearBeacons(List<MinewBeacon> minewBeacons) {
-                if(NetworkManager.getDataTK){
+                if(NetworkManager.getDataTK && !isOut){
                     for (MinewBeacon minewBeacon : minewBeacons) {
                         log_post(minewBeacon,"OUT");
+                        isOut = true;
                         Log.d("beacon", " 비콘이 사라짐");
                     }
                 }
