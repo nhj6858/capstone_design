@@ -56,10 +56,6 @@ public class ResultActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.colorwhite), PorterDuff.Mode.SRC_ATOP);
 
-
-//        NetworkManager.list.add("19");
-//        NetworkManager.list.add("18");
-
         adapter = new ListViewAdapter();
         listview = (ListView) findViewById(R.id.listview);
         listview.setAdapter(adapter);
@@ -91,7 +87,6 @@ public class ResultActivity extends AppCompatActivity {
                             }
                         }
                     }
-                    
                     @Override
                     public void onFailure(Call<ResponseBody> call, Throwable t) {
 
